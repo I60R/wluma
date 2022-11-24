@@ -43,8 +43,15 @@ pub enum Output {
     DdcUtil(DdcUtilOutput),
 }
 
+#[derive(Debug, Clone)]
+pub enum Processor {
+    Vulkan,
+    OpenGL,
+}
+
 #[derive(Debug)]
 pub struct Config {
     pub als: Als,
     pub output: Vec<Output>,
+    pub processor: Processor,
 }

@@ -72,6 +72,11 @@ fn parse() -> Result<app::Config, toml::de::Error> {
             },
             file::Als::None => app::Als::None,
         },
+
+        processor: match file_config.processor {
+            file::Processor::OpenGL => Processor::OpenGL,
+            file::Processor::Vulkan => Processor::Vulkan,
+        },
     })
 }
 

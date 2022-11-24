@@ -1,5 +1,7 @@
 use itertools::Itertools;
-use std::sync::mpsc;
+use std::{sync::mpsc, rc::Rc};
+
+use crate::frame::processor::{vulkan::Vulkan, opengl::OpenGL};
 
 mod als;
 mod brightness;
@@ -63,15 +65,29 @@ fn main() {
                         })
                         .unwrap_or_else(|_| panic!("Unable to start thread: {}", thread_name));
 
+                    let processor_library = config.processor.clone();
                     let thread_name = format!("predictor-{}", output_name);
                     std::thread::Builder::new()
                         .name(thread_name.clone())
                         .spawn(move || {
                             let frame_capturer: Box<dyn frame::capturer::Capturer> =
                                 match output_capturer {
+
                                     config::Capturer::Wlroots => {
-                                        Box::new(frame::capturer::wlroots::Capturer::default())
+                                        let processor: Rc<Box<dyn frame::processor::Processor>> =
+                                            match processor_library {
+
+                                                config::Processor::Vulkan => Rc::new(Box::new(
+                                                    Vulkan::new().expect("Cannot initialize Vulkan")
+                                                )),
+
+                                                config::Processor::OpenGL => Rc::new(Box::new(
+                                                    OpenGL::new().expect("Cannot initialize OpenGL")
+                                                )),
+                                            };
+                                        Box::new(frame::capturer::wlroots::Capturer::new(processor))
                                     }
+
                                     config::Capturer::None => {
                                         Box::new(frame::capturer::none::Capturer::default())
                                     }

@@ -10,6 +10,19 @@ pub enum Capturer {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
+pub enum Processor {
+    OpenGL,
+    Vulkan,
+}
+
+impl Default for Processor {
+    fn default() -> Self {
+        Self::Vulkan
+    }
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
 pub enum Als {
     Iio {
         path: String,
@@ -58,4 +71,6 @@ pub struct Config {
     pub output: OutputByType,
     #[serde(default)]
     pub keyboard: Vec<Keyboard>,
+    #[serde(default)]
+    pub processor: Processor,
 }
